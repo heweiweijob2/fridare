@@ -1,0 +1,21 @@
+name: Build Frida Windows
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run patch-frida.cmd
+        run: .\win\patch-frida.cmd
+
+      - name: Upload patched frida-server
+        uses: actions/upload-artifact@v4
+        with:
+          name: frida-patched
+          path: .\win\frida-server.exe
