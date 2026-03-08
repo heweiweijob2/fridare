@@ -11,11 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run patch-frida.cmd
-        run: .\win\patch-frida.cmd
+      - name: List files in out directory
+        run: dir .\out
 
-      - name: Upload patched frida-server
+      - name: Run hexreplace
+        run: .\win\hexreplace.exe .\out frida-server.exe 74657374 74657374
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: frida-patched
-          path: .\win\frida-server.exe
+          path: .\out\frida-server.exe
