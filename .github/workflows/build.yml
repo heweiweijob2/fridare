@@ -4,18 +4,24 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-      - name: Checkout Frida源码
+      - name: Checkout Frida
         uses: actions/checkout@v4
         with:
+          repository: frida/frida
           submodules: recursive
-      - name: 初始化编译环境
+          fetch-depth: 0
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
         run: |
-          python tools\ensure-submodules.py
-          .\configure
-      - name: 编译frida-server
-        run: .\make
-      - name: 上传编译好的文件
+          python -m pip install --upgrade pip
+          pip install meson ninja
+      - name: Build frida-server
+        run: .\windows-build.bat --arch x86_64
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: frida-server-windows
-          path: build\frida-server.exe
+          path: build\frida-server-*-windows-x86_64.exe
