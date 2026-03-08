@@ -1,24 +1,21 @@
-name: Build Frida Windows
-
-on:
-  push:
-    branches: [ main ]
-  workflow_dispatch:
-
+name: Build Windows Frida Server
+on: workflow_dispatch
 jobs:
   build:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: List files in out directory
-        run: dir .\out
-
-      - name: Run hexreplace
-        run: .\win\hexreplace.exe .\out frida-server.exe 74657374 74657374
-
-      - name: Upload artifact
+      - name: Checkout Frida源码
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: 初始化编译环境
+        run: |
+          python tools\ensure-submodules.py
+          .\configure
+      - name: 编译frida-server
+        run: .\make
+      - name: 上传编译好的文件
         uses: actions/upload-artifact@v4
         with:
-          name: frida-patched
-          path: .\out\frida-server.exe
+          name: frida-server-windows
+          path: build\frida-server.exe
