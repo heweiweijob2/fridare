@@ -1,4 +1,4 @@
-name: Build Windows Frida Server
+name: Build Basic Windows Frida
 on: workflow_dispatch
 jobs:
   build:
@@ -9,19 +9,22 @@ jobs:
         with:
           repository: frida/frida
           submodules: recursive
-          fetch-depth: 0
+          path: frida
       - name: Install Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install meson ninja
-      - name: Build frida-server
-        run: .\windows-build.bat --arch x86_64
-      - name: Upload artifact
+      - name: Configure and Build
+        run: |
+          cd frida
+          python tools\gyp\gyp_main.py --depth=. -G msvs_version=2022 frida.sln
+          msbuild frida.sln /p:Configuration=Release /p:Platform=x64
+      - name: Upload Exe
         uses: actions/upload-artifact@v4
         with:
-          name: frida-server-windows
-          path: build\frida-server-*-windows-x86_64.exe
+          name: basic-frida-server
+          path: frida\build\Release\frida-server.exe
